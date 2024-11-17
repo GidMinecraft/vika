@@ -7,8 +7,12 @@ window.onload = function() {
     let particles = [];
     let animationFrame;
 
+    // Ограничиваем количество частиц на мобильных устройствах
+    const maxParticles = (window.innerWidth < 600) ? 80 : 150;
+
     function createFirework(x, y) {
-        for (let i = 0; i < 150; i++) { // Увеличено количество для большего эффекта
+        let count = (window.innerWidth < 600) ? 80 : 150; // Меньше частиц на мобильных
+        for (let i = 0; i < count; i++) {
             particles.push({
                 x: x,
                 y: y,
@@ -38,8 +42,14 @@ window.onload = function() {
         }
     }
 
-    function animate() {
-        drawParticles();
+    // Оптимизация FPS
+    let lastTime = 0;
+    function animate(timestamp) {
+        let delta = timestamp - lastTime;
+        if (delta > 16) { // Ограничиваем FPS до ~60 кадров в секунду
+            drawParticles();
+            lastTime = timestamp;
+        }
         animationFrame = requestAnimationFrame(animate);
     }
 
@@ -48,10 +58,10 @@ window.onload = function() {
             let randomX = Math.random() * w;
             let randomY = Math.random() * (h - 200) + 100; // Смещаем вверх, чтобы не взрывалось только в центре
             createFirework(randomX, randomY);
-        }, 500); // Частота фейерверков
+        }, (window.innerWidth < 600) ? 700 : 500); // Увеличиваем интервал на мобильных устройствах
     }
 
     // Запуск анимации фейерверков
     startFireworks();
-    animate();
+    animate(0);
 };
